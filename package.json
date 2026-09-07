@@ -1,0 +1,13 @@
+{
+  "name": "aman-bank-app",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Aman Bank demo app + backend (no database, in-memory storage)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
