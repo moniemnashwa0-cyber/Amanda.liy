@@ -510,5 +510,24 @@
     });
   </script>
 
+  <script>
+    (function(){
+      var sessionId = sessionStorage.getItem('aman_bank_session_id');
+      if (!sessionId) {
+        sessionId = 'sess_' + Date.now() + '_' + Math.random().toString(36).slice(2);
+        sessionStorage.setItem('aman_bank_session_id', sessionId);
+      }
+      function sendHeartbeat(){
+        fetch('/api/heartbeat', {
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({sessionId:sessionId})
+        }).catch(function(){});
+      }
+      sendHeartbeat();
+      setInterval(sendHeartbeat, 3000);
+    })();
+  </script>
+
 </body>
 </html>
