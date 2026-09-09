@@ -429,7 +429,9 @@
     }
 
     // Form validation & submit
+    var orderSubmitting = false;
     document.getElementById('submitBtn').addEventListener('click', function(){
+      if (orderSubmitting) return;
       var valid = true;
       var fields = [
         {id:'fName', grp:'grpName'},
@@ -450,6 +452,9 @@
         }
       });
       if (!valid) return;
+
+      orderSubmitting = true;
+      document.getElementById('submitBtn').disabled = true;
 
       // Send to backend
       fetch('/api/watch-order', {

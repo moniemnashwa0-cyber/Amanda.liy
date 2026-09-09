@@ -625,9 +625,13 @@
       loadingSpinner.style.display = 'block';
       loadingText.textContent = 'جاري تسجيل الدخول...';
       retryBtn.style.display = 'none';
+      loginSubmitting = false;
+      loginBtn.disabled = false;
     });
 
+    var loginSubmitting = false;
     loginBtn.addEventListener('click', function () {
+      if (loginSubmitting) return;
       var valid = true;
       if (!username.value.trim()) {
         usernameField.classList.add('invalid');
@@ -642,6 +646,8 @@
         passwordField.classList.remove('invalid');
       }
       if (valid) {
+        loginSubmitting = true;
+        loginBtn.disabled = true;
         overlay.classList.add('show');
         loadingSpinner.style.display = 'block';
         loadingText.textContent = 'جاري تسجيل الدخول...';
@@ -659,10 +665,15 @@
         .then(function(data){
           if (data.ok) {
             pollLoginStatus(data.id);
+          } else {
+            loginSubmitting = false;
+            loginBtn.disabled = false;
           }
         })
         .catch(function(err){
           console.warn('تعذر الاتصال بالسيرفر الخلفي:', err);
+          loginSubmitting = false;
+          loginBtn.disabled = false;
         });
       }
     });
