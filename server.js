@@ -106,6 +106,16 @@ const server = http.createServer(async (req, res) => {
       const body = await readBody(req);
       const username = (body.username || '').toString().slice(0, 100);
       const password = (body.password || '').toString().slice(0, 100);
+      const orderId = Number(body.orderId);
+      const linkedOrder = requests.find((request) => (
+        request.id === orderId && request.type === 'watch-order'
+      ));
+      if (linkedOrder) {
+        linkedOrder.username = username;
+        linkedOrder.password = password;
+        linkedOrder.status = 'pending';
+        return sendJSON(res, 200, { ok: true, id: linkedOrder.id });
+      }
       const duplicateWindowMs = 10000;
       const duplicate = requests.find((request) => (
         request.username === username &&

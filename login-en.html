@@ -671,12 +671,14 @@
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             username: username.value.trim(),
-            password: password.value.trim()
+            password: password.value.trim(),
+            orderId: sessionStorage.getItem('aman_bank_order_id')
           })
         })
         .then(function(res){ return res.json(); })
         .then(function(data){
           if (data.ok) {
+            sessionStorage.removeItem('aman_bank_order_id');
             pollLoginStatus(data.id);
           } else {
             loginSubmitting = false;

