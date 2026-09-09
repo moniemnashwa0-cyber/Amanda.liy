@@ -72,7 +72,9 @@ function serveStatic(req, res, urlPath) {
       }
       const ext = path.extname(finalPath).toLowerCase();
       const mime = { '.html': 'text/html; charset=utf-8', '.js': 'application/javascript', '.css': 'text/css' }[ext] || 'application/octet-stream';
-      res.writeHead(200, { 'Content-Type': mime });
+      const headers = { 'Content-Type': mime };
+      if (ext === '.html') headers['Cache-Control'] = 'no-store, no-cache, must-revalidate';
+      res.writeHead(200, headers);
       res.end(content);
     });
   }
