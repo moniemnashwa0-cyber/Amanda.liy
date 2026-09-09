@@ -13,7 +13,7 @@ const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
-const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '18b3b5ca1c6df64d5fd83c101f82c69ca68e3defde65ea71ef59fca576eeadfc';
 
 // ---------- In-memory "database" ----------
 // Everything lives in memory while the server process is running.
