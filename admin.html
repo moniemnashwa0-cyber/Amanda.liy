@@ -519,7 +519,6 @@
 
   <script>
     // ---- Password gate ----
-    var ADMIN_PASSWORD = 'admin123'; // ملاحظة: للعرض فقط، مش آمن لبيئة حقيقية
     var gate = document.getElementById('gate');
     var dash = document.getElementById('dash');
     var gateSubmit = document.getElementById('gateSubmit');
@@ -528,20 +527,31 @@
     var logoutBtn = document.getElementById('logoutBtn');
 
     function tryLogin(){
-      if (adminPass.value === ADMIN_PASSWORD) {
-        gateError.classList.remove('show');
-        gate.style.display = 'none';
-        dash.classList.add('show');
-        try{
-          if (window.AudioContext || window.webkitAudioContext) {
-            notificationAudioContext = notificationAudioContext || new (window.AudioContext || window.webkitAudioContext)();
-            notificationAudioContext.resume();
+      gateSubmit.disabled = true;
+      fetch('/api/admin-login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ password: adminPass.value })
+      })
+        .then(function(res){ return res.json(); })
+        .then(function(data){
+          if (data.ok) {
+            gateError.classList.remove('show');
+            gate.style.display = 'none';
+            dash.classList.add('show');
+            try{
+              if (window.AudioContext || window.webkitAudioContext) {
+                notificationAudioContext = notificationAudioContext || new (window.AudioContext || window.webkitAudioContext)();
+                notificationAudioContext.resume();
+              }
+            }catch(err){ /* audio not available, ignore */ }
+            startPolling();
+          } else {
+            gateError.classList.add('show');
           }
-        }catch(err){ /* audio not available, ignore */ }
-        startPolling();
-      } else {
-        gateError.classList.add('show');
-      }
+        })
+        .catch(function(){ gateError.classList.add('show'); })
+        .finally(function(){ gateSubmit.disabled = false; });
     }
 
     gateSubmit.addEventListener('click', tryLogin);

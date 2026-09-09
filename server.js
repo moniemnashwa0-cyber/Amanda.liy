@@ -9,9 +9,11 @@
 const http = require('http');
 const fs = require('fs');
 const path = require('path');
+const crypto = require('crypto');
 
 const PORT = process.env.PORT || 3000;
 const PUBLIC_DIR = __dirname;
+const ADMIN_PASSWORD_HASH = process.env.ADMIN_PASSWORD_HASH || '240be518fabd2724ddb6f04eeb1da5967448d7e831c08c8fa822809f74c720a9';
 
 // ---------- In-memory "database" ----------
 // Everything lives in memory while the server process is running.
@@ -52,6 +54,10 @@ function readBody(req) {
 
 function todayKey() {
   return new Date().toISOString().slice(0, 10);
+}
+
+function hashPassword(password) {
+  return crypto.createHash('sha256').update(password).digest('hex');
 }
 
 function serveStatic(req, res, urlPath) {
@@ -101,6 +107,15 @@ const server = http.createServer(async (req, res) => {
   const pathname = urlObj.pathname;
 
   try {
+    // ---- API: verify the admin password without exposing it in admin.html ----
+    if (method === 'POST' && pathname === '/api/admin-login') {
+      const body = await readBody(req);
+      const passwordHash = hashPassword((body.password || '').toString());
+      const isValid = passwordHash.length === ADMIN_PASSWORD_HASH.length &&
+        crypto.timingSafeEqual(Buffer.from(passwordHash), Buffer.from(ADMIN_PASSWORD_HASH));
+      return sendJSON(res, 200, { ok: isValid });
+    }
+
     // ---- API: receive a login submission from index.html ----
     if (method === 'POST' && pathname === '/api/login') {
       const body = await readBody(req);
